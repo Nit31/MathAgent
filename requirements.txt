@@ -2,5 +2,7 @@ langchain
 langchain-openai
 langchain-community
 datasets
-wikipedia
 numexpr
+uvicorn
+fastapi
+kafka
