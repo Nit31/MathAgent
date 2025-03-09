@@ -5,4 +5,4 @@ datasets
 numexpr
 uvicorn
 fastapi
-kafka
+kafka-python

@@ -4,6 +4,7 @@ from kafka import KafkaProducer, KafkaConsumer
 import json
 import threading
 import uvicorn
+import hashlib
 
 app = FastAPI()
 
@@ -12,12 +13,16 @@ producer = KafkaProducer(
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
-# Store solutions in memory (for demo purposes)
+# Store solutions in memory # FIXME:
 solutions = {}
 
 # Pydantic model for the problem request
 class ProblemRequest(BaseModel):
     problem: str
+
+# Generate a hash for the problem text
+def generate_hash(problem_text):
+    return hashlib.sha256(problem_text.encode('utf-8')).hexdigest()
 
 # Configure Kafka Consumer to listen for solutions
 def consume_solutions():
@@ -30,10 +35,11 @@ def consume_solutions():
     
     for message in consumer:
         solution_data = message.value
+        problem_hash = solution_data['problem_hash']
         problem = solution_data['problem']
         solution = solution_data['solution']
-        solutions[problem] = solution  # Store solution in memory
-        print(f"Solution for {problem}: {solution}")
+        solutions[problem_hash] = {'problem': problem, 'solution': solution}  # Store solution in memory
+        print(f"Solution for {problem_hash}: {solution}")
 
 # Run the consumer in a background thread
 thread = threading.Thread(target=consume_solutions, daemon=True)
@@ -43,19 +49,37 @@ thread.start()
 async def submit_problem(problem_request: ProblemRequest):
     """
     Accepts a math problem from the user and sends it to Kafka.
+    If the problem has already been solved, returns the cached solution.
     """
-    message = {"problem": problem_request.problem}
+    problem_hash = generate_hash(problem_request.problem)
+    
+    # Check if solution already exists
+    if problem_hash in solutions:
+        return {
+            "message": "Problem already solved",
+            "problem": solutions[problem_hash]['problem'],
+            "problem_hash": problem_hash
+        }
+    
+    # If not solved, send to Kafka
+    message = {
+        "problem": problem_request.problem,
+        "problem_hash": problem_hash
+    }
     producer.send('math-problems', message)
     producer.flush()
-    return {"message": "Problem sent to Kafka", "problem": problem_request.problem}
+    return {"message": "Problem sent to Kafka", "problem": problem_request.problem, "problem_hash": problem_hash}
 
-@app.get("/get-solution/{problem}")
-async def get_solution(problem: str):
+@app.get("/get-solution/{problem_hash}")
+async def get_solution(problem_hash: str):
     """
-    Retrieve the solution for the given math problem from Kafka.
+    Retrieve the solution for the given problem hash from Kafka.
     """
-    if problem in solutions:
-        return {"problem": problem, "solution": solutions[problem]}
+    if problem_hash in solutions:
+        return {
+            "problem": solutions[problem_hash]['problem'],
+            "solution": solutions[problem_hash]['solution']
+        }
     else:
         return {"message": "Solution not yet available"}
         
