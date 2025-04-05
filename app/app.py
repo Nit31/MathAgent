@@ -37,9 +37,12 @@ st.write("Submit a math problem and get a step-by-step solution!")
 
 # Example problems
 examples = {
-    "1": "Toulouse has twice as many sheep as Charleston. Charleston has 4 times as many sheep as Seattle. How many sheep do Toulouse, Charleston, and Seattle have together if Seattle has 20 sheep?",
-    "2": "In a dance class of 20 students, 20% enrolled in contemporary dance, 25% of the remaining enrolled in jazz dance, and the rest enrolled in hip-hop dance. What percentage of the entire students enrolled in hip-hop dance?",
-    "3": "I have 10 liters of orange drink that are two-thirds water and I wish to add it to 15 liters of pineapple drink that is three-fifths water. But as I pour it, I spill one liter of the orange drink. How much water is in the remaining 24 liters?",
+    "1": "Toulouse has twice as many sheep as Charleston. Charleston has 4 times as many sheep as Seattle. How many \
+sheep do Toulouse, Charleston, and Seattle have together if Seattle has 20 sheep?",
+    "2": "In a dance class of 20 students, 20% enrolled in contemporary dance, 25% of the remaining enrolled in jazz \
+dance, and the rest enrolled in hip-hop dance. What percentage of the entire students enrolled in hip-hop dance?",
+    "3": "I have 10 liters of orange drink that are two-thirds water and I wish to add it to 15 liters of pineapple \
+drink that is three-fifths water. But as I pour it, I spill one liter of the orange drink. How much water is in the remaining 24 liters?",
 }
 
 # Sidebar with examples
@@ -60,7 +63,7 @@ if submit and problem:
         problem_hash = submit_problem(problem)
 
     if problem_hash:
-        st.info(f"Problem submitted successfully!")
+        st.info("Problem submitted successfully!")
 
         # Try to get the solution with a delay to allow processing
         with st.spinner("Getting solution..."):

@@ -2,6 +2,8 @@
 
 This project aims to develop an LLM agent capable of efficiently solving multi-step math problems through a multi-phase experimental approach.
 
+The final version of the agent replicates the implementation in `experiments/reflection_agent.ipynb`. All experiments can be found in the `experiments` folder. The detailed experiments explanation is written in [this readme](experiments/README.md) file.
+
 ## Installation
 1) Prerequisites
     - Docker and Docker Compose installed
@@ -16,29 +18,24 @@ cd MathAgent
 
 3) Set up environment variables
     - Copy the example .env file with `cp .env.example .env`
-    - Edit the .env file with your API keys and configuration
+    - Edit the .env file with your OpenAI API key
 
 4) Build and start the services
 ```
 docker-compose up -d
 ```
 
-5) Install Python dependencies (will be containerized later)
-```
-pip install -r requirements.txt
-```
+5) Now the API is accessible on `http://127.0.0.1:8080`
 
-6) Start the servers
-```
-./scripts/start_api.sh
-./scripts/start_kafka.sh
-```
+## Usage
 
-7) Now the API is accessible on `http://127.0.0.1:8000`
+You can find usage example in the Jupyter notebook at [example.ipynb](app/example.ipynb) 
 
-## Usage 
+Moreover, you can run a simple web application by following the instruction:
+1) `pip install streamlit`
+2) `streamlit run app/app.py`
 
-You can find usage examples in the Jupyter notebook at [request.ipynb](experiments/request.ipynb) 
+
 
 ## API Endpoints
 
