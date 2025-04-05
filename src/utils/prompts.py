@@ -1,5 +1,4 @@
-system_prompt = \
-"""
+system_prompt = """
 ### INSTRUCTIONS
 1) Solve the following grade school level math problem step-by-step.
 2) At the end, provide the answer formatted as Answer: <ANSWER>
@@ -41,8 +40,7 @@ So in total Mark has 28 + 7 = <<28+7=35>>35 plants in his garden.
 Answer: 35
 """
 
-problem_prompt = \
-"""
+problem_prompt = """
 ### INPUT
 ## PROBLEM
 {problem}
