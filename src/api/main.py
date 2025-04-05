@@ -1,10 +1,12 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from kafka import KafkaProducer, KafkaConsumer
+import hashlib
 import json
 import threading
+
 import uvicorn
-import hashlib
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+from kafka import KafkaConsumer, KafkaProducer
 
 app = FastAPI()
 
