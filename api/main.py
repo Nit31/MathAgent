@@ -1,16 +1,23 @@
 import hashlib
 import json
+import os
 import threading
 
 import uvicorn
 from fastapi import FastAPI
-from pydantic import BaseModel
-
 from kafka import KafkaConsumer, KafkaProducer
+from pydantic import BaseModel
 
 app = FastAPI()
 
-producer = KafkaProducer(bootstrap_servers="localhost:9093", value_serializer=lambda v: json.dumps(v).encode("utf-8"))
+# Get bootstrap servers from environment variable
+BOOOTSTRAP_SERVERS = os.environ.get('KAFKA_BOOTSTRAP_SERVERS', 'localhost:9093')
+CONSUMER_TOPIC = os.environ.get('KAFKA_CONSUMER_TOPIC', 'math-problems')
+PRODUCER_TOPIC = os.environ.get('KAFKA_PRODUCER_TOPIC', 'math-solutions')
+CONSUMER_GROUP_ID = os.environ.get('KAFKA_CONSUMER_GROUP_ID', 'math-solution-group')
+
+print(BOOOTSTRAP_SERVERS)
+producer = KafkaProducer(bootstrap_servers=BOOOTSTRAP_SERVERS, value_serializer=lambda v: json.dumps(v).encode("utf-8"))
 
 # Store solutions in memory # FIXME:
 solutions = {}
@@ -28,10 +35,11 @@ def generate_hash(problem_text):
 
 # Configure Kafka Consumer to listen for solutions
 def consume_solutions():
+    """Consumes solutions from the Kafka topic and stores them in memory."""
     consumer = KafkaConsumer(
-        "math-solutions",  # Topic to listen for solutions
-        bootstrap_servers="localhost:9093",
-        group_id="math-solution-listener",
+        PRODUCER_TOPIC,  # Topic to listen for solutions
+        bootstrap_servers=BOOOTSTRAP_SERVERS,  # Use the same bootstrap servers as producer
+        group_id=CONSUMER_GROUP_ID,
         value_deserializer=lambda x: json.loads(x.decode("utf-8")),
     )
 
@@ -68,7 +76,7 @@ async def submit_problem(problem_request: ProblemRequest):
 
     # If not solved, send to Kafka
     message = {"problem": problem_request.problem, "problem_hash": problem_hash}
-    producer.send("math-problems", message)
+    producer.send(CONSUMER_TOPIC, message)
     producer.flush()
     return {"message": "Problem sent to Kafka", "problem": problem_request.problem, "problem_hash": problem_hash}
 
@@ -88,7 +96,3 @@ async def get_solution(problem_hash: str):
         }
     else:
         return {"message": "Solution not yet available"}
-
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)

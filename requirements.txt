@@ -3,6 +3,6 @@ langchain-openai
 langchain-community
 datasets
 numexpr
-uvicorn
-fastapi
 kafka-python
+langgraph
+sympy

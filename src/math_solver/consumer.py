@@ -1,23 +1,32 @@
 import json
+import logging
+import os
 
 from kafka import KafkaConsumer, KafkaProducer
+
 from math_solver import Solver
+
+logging.basicConfig(level=logging.INFO)
+
+BOOOTSTRAP_SERVERS = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9093")
+CONSUMER_TOPIC = os.environ.get("KAFKA_CONSUMER_TOPIC", "math-problems")
+PRODUCER_TOPIC = os.environ.get("KAFKA_PRODUCER_TOPIC", "math-solutions")
+CONSUMER_GROUP_ID = os.environ.get("KAFKA_CONSUMER_GROUP_ID", "math-solution-group")
 
 
 def main():
-    # Configure Kafka Consumer
     consumer = KafkaConsumer(
-        "math-problems",
-        bootstrap_servers="localhost:9093",
-        group_id="math-agent",
+        CONSUMER_TOPIC,
+        bootstrap_servers=BOOOTSTRAP_SERVERS,
+        group_id=CONSUMER_GROUP_ID,
         value_deserializer=lambda x: json.loads(x.decode("utf-8")),
     )
 
     solver = Solver()
 
-    # Configure Kafka Producer to send solution back to a different topic
+    # Configure Kafka Producer
     producer = KafkaProducer(
-        bootstrap_servers="localhost:9093", value_serializer=lambda v: json.dumps(v).encode("utf-8")
+        bootstrap_servers=BOOOTSTRAP_SERVERS, value_serializer=lambda v: json.dumps(v).encode("utf-8")
     )
 
     # Listen for messages and process them
@@ -26,11 +35,10 @@ def main():
         problem_hash = message.value["problem_hash"]
         print(f"Received problem: {problem} with hash: {problem_hash}")
 
-        # try:
-        response = solver.solve(problem)
-
-        # Send solution to the 'math-solutions' topic with problem hash
         try:
+            response = solver.solve(problem)
+
+            # Send solution to the 'math-solutions' topic with problem hash
             solution_message = {
                 "problem": problem,
                 "problem_hash": problem_hash,
@@ -46,7 +54,7 @@ def main():
                 "solution": str(e),
                 "answer": response,
             }
-        producer.send("math-solutions", solution_message)
+        producer.send(PRODUCER_TOPIC, solution_message)
         producer.flush()  # Ensure the message is sent
 
         # except Exception as e:
@@ -54,4 +62,6 @@ def main():
 
 
 if __name__ == "__main__":
+    logging.info("Starting Kafka consumer for math problems...")
+
     main()
