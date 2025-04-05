@@ -40,8 +40,9 @@ def consume_solutions():
         problem_hash = solution_data["problem_hash"]
         problem = solution_data["problem"]
         solution = solution_data["solution"]
-        solutions[problem_hash] = {"problem": problem, "solution": solution}  # Store solution in memory
-        print(f"Solution for {problem_hash}: {solution}")
+        answer = solution_data["answer"]
+        solutions[problem_hash] = {"problem": problem, "solution": solution, "answer": answer}
+        # print(f"Solution for {problem_hash}: {solution}")
 
 
 # Run the consumer in a background thread
@@ -78,7 +79,13 @@ async def get_solution(problem_hash: str):
     Retrieve the solution for the given problem hash from Kafka.
     """
     if problem_hash in solutions:
-        return {"problem": solutions[problem_hash]["problem"], "solution": solutions[problem_hash]["solution"]}
+        print("AAAAAAAAAAAAA")
+        print(solutions[problem_hash].keys())
+        return {
+            "problem": solutions[problem_hash]["problem"],
+            "solution": solutions[problem_hash]["solution"],
+            "answer": solutions[problem_hash]["answer"],
+        }
     else:
         return {"message": "Solution not yet available"}
 

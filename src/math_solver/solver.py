@@ -1,13 +1,16 @@
 import os
+from typing import Dict
 
 from dotenv import load_dotenv
-from langchain.schema import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 
-from utils.prompts import problem_prompt, system_prompt
+from math_solver.graph import Agent
 
 
 class Solver:
+    """
+    A class to solve mathematical problems using OpenAI's GPT-4o model.
+    """
     def __init__(self):
         # Load environment variables from .env file
         load_dotenv()
@@ -23,9 +26,21 @@ class Solver:
             temperature=0,
             seed=42,
         )
-        self.system_message = SystemMessage(content=system_prompt)
 
-    def solve(self, problem: str) -> str:
-        human_message = HumanMessage(content=problem_prompt.format(problem=problem))
-        response = self.llm.invoke([self.system_message, human_message])
-        return response.content
+        self.agent = Agent(
+            llm=self.llm,
+        )
+
+    def solve(self, problem: str) -> Dict[str, str]:
+        """
+        Solve a given mathematical problem using the agent.
+        :param problem: The mathematical problem to solve.
+        :return: The solution to the problem.
+        """
+        try:
+            response = self.agent(problem)
+        except Exception as e:
+            print(f"Error occurred while solving the problem: {e}")
+            return str(e)
+
+        return response

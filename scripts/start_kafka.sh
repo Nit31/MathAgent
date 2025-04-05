@@ -1,2 +1,2 @@
 export PYTHONPATH=$(pwd)/src
-python src/kafka/consumer.py
+python src/math_solver/consumer.py
