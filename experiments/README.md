@@ -1,6 +1,6 @@
 # Experiments
 
-## Chosing of the model
+## Choosing of the model
 In this experiment, we evaluated three language models: **Gemma**, **Mistral** and **OpenAI**. These models were utilized for tasks involving mathematical reasoning. The primary objective was to compare their performance and precision in order to identify the most suitable model for future experiments involving math-solving agents.
 
 ### Model testing and Results
@@ -64,7 +64,7 @@ The system implements a stateful agent that combines LLM reasoning with external
 - Ensures consistency for downstream processing
 
 ####  Execution Flow
-![alt text](sources\react.png)
+![alt text](sources/react.png)
 
 #### Evaluation Metrics
 
@@ -116,7 +116,7 @@ The ReWOO agent implements a plan-then-execute paradigm that separates reasoning
 
 
 ####  Execution Flow
-![alt text](sources\rewoo.png)
+![alt text](sources/rewoo.png)
 
 #### Evaluation Metrics
 
@@ -159,7 +159,7 @@ The main difference between this agent and the previous ones is that it has a re
 
 
 ####  Execution Flow 
-![alt text](sources\reflection.png)
+![alt text](sources/reflection.png)
 
 #### Evaluation Metrics
 
