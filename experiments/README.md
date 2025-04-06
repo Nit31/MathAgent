@@ -5,7 +5,7 @@ In this experiment, we evaluated three language models: **Gemma**, **Mistral** a
 
 ### Model testing and Results
 
-The models were tested on a dataset of 100 random samples from the **GSM8K** test dataset, which consists of mathematical problems and their corresponding solutions. The testing was conducted using a random seed value of 42 to always use the same random sample, and a zero-shot prompting approach was employed. The **Gemma** and **Mistral** models were executed locally and and they didn't show very good results. In contrast, the **OpenAI** model demonstrated exceptionally rapid performance during the testing phase. Here are the obtained results:
+The models were tested on a dataset of 100 random samples from the **GSM8K** test dataset, which consists of mathematical problems and their corresponding solutions. A zero-shot prompting approach was employed. The **Gemma** and **Mistral** models were executed locally and and they didn't show very good results. In contrast, the **OpenAI** model demonstrated exceptionally rapid performance during the testing phase. Here are the obtained results:
 
 | Model   | Precision |
 |---------|----------|
@@ -15,9 +15,9 @@ The models were tested on a dataset of 100 random samples from the **GSM8K** tes
 
 ### Final decision on the model
 
-We selected the **OpenAI** model for our forthcoming experiments due to its superior performance in zero-shot prompting, achieving a precision of **0.85**. The model provides structured output, obviating the need to utilize our CPU resources for this purpose.
+We selected the **OpenAI** model for our forthcoming experiments due to its superior performance in zero-shot prompting, achieving a precision of **0.89**. The model provides structured output, obviating the need to utilize our CPU resources for this purpose.
 
-To ensure the suitability of this model for mathematical problem-solving agents, we conducted tests using few-shot prompting, which yielded a precision of **0.89**.
+To ensure the suitability of this model for mathematical problem-solving agents, we conducted tests using few-shot prompting, which yielded a precision of **0.93**.
 
 ## Agents
 
@@ -73,7 +73,6 @@ The agent achieved strong performance during validation on the test dataset, att
 Most incorrect responses fell into two categories:
 1. Misinterpretation of Problem Statements – The agent occasionally misidentified key relationships or requirements in the task.
 2. Calculation Order Errors – In multi-step problems, incorrect sequencing of operations led to wrong final answers.
-3. Error in benchmark
 
 ---
 
@@ -163,6 +162,4 @@ The main difference between this agent and the previous ones is that it has a re
 
 #### Evaluation Metrics
 
-The agent demonstrated near-perfect problem-solving skills, receiving an accuracy rating of **1.0** on test sample. However, the agent provided an incorrect answer for one of the problems.
-
-A single error was observed during benchmarking, which did not reflect the agent’s actual performance. Manual review confirmed the agent’s logic and calculations were correct for all tasks.
+The agent demonstrated near-perfect problem-solving skills, receiving an accuracy rating of **1.0** on test sample. However, the agent provided an incorrect answer for one of the problems. A single error was observed during benchmarking, which did not reflect the agent’s actual performance. Manual review confirmed the agent’s logic and calculations were correct for all tasks.
