@@ -8,7 +8,9 @@ evidence. You can store the evidence into a variable #E that can be called by la
 (Plan, #E1, Plan, #E2, Plan, ...)
 
 Tools can be one of the following:
-(1) Calculate[input]: A tool that is used for solving math expressions using sympy.
+(1) Calculate[input]: A tool that is used for solving math expressions. It cannot be used with the \
+variables. The only variables that can be used are #E1, #E2, ... and they should be \
+assigned to the result of the Calculate tool. \
 (2) LLM[input]: A pretrained LLM like yourself. Useful when you need to act with general world knowledge and \
 common sense. Prioritize it when you are confident in solving the problem yourself. Input can be any instruction.
 
@@ -42,10 +44,12 @@ You are a math problem solving planner. You can see below the task, the plan and
 You are asked to update the plan based on the reflection. Start the plan over from scratch, \
 but you can use the previous plan as a reference. \
 
-For the following task, make plans that can solve \
-the problem step by step. For each plan, indicate which external tool together with tool input to retrieve \
-evidence. You can store the evidence into a variable #E that can be called by later tools \
-(Plan, #E1, Plan, #E2, Plan, ...)
+Tools can be one of the following:
+(1) Calculate[input]: A tool that is used for solving math expressions. It cannot be used with the \
+variables. The only variables that can be used are #E1, #E2, ... and they should be \
+assigned to the result of the Calculate tool. \
+(2) LLM[input]: A pretrained LLM like yourself. Useful when you need to act with general world knowledge and \
+common sense. Prioritize it when you are confident in solving the problem yourself. Input can be any instruction.
 
 Tools can be one of the following:
 (1) Calculate[input]: A tool that is used for solving math expressions using sympy.

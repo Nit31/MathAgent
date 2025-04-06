@@ -82,17 +82,14 @@ if submit and problem:
                 {
                     "problem": problem,
                     "solution": solution_data["solution"],
-                    "answer": solution_data["answer"],
                     "hash": problem_hash,
                 }
             )
 
             # Show the recent solution
             st.subheader("Solution")
-            st.write(solution_data["solution"])
+            st.text(solution_data["solution"])
 
-            st.subheader("Answer")
-            st.write(solution_data["answer"])
         else:
             st.warning("Solution is still being generated or not available yet. You can check history later.")
 
@@ -114,13 +111,10 @@ if st.session_state.history:
                     if solution_data and "solution" in solution_data:
                         # Update history
                         item["solution"] = solution_data["solution"]
-                        item["answer"] = solution_data["answer"]
                         item.pop("pending", None)
                         st.rerun()
                     else:
                         st.warning("Solution is still being processed.")
             else:
                 st.write("**Solution:**")
-                st.write(item["solution"])
-                st.write("**Answer:**")
-                st.write(item["answer"])
+                st.text(item["solution"])

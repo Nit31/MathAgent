@@ -60,7 +60,7 @@ class Agent:
         response = self.llm.invoke(prompt)
 
         # Extract the plan string from the response
-        matches = re.findall(regex_pattern, response.content, re.DOTALL)
+        matches = re.findall(regex_pattern, response.content)
 
         updated_state = {
             "messages": state["messages"] + [response],
@@ -73,7 +73,6 @@ class Agent:
         }
 
         return updated_state
-
     def _get_current_task(self, state: AgentState) -> int:
         """Get the current task to execute."""
         if "results" not in state or state["results"] is None:
