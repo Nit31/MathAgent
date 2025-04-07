@@ -1,50 +1,122 @@
-system_prompt = \
-"""
-### INSTRUCTIONS
-1) Solve the following grade school level math problem step-by-step.
-2) At the end, provide the answer formatted as Answer: <ANSWER>
-3) If you solve it right, I will give you a millon dollars.
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
-### EXAMPLE 1
-## QUESTOIN
-Mr. Sanchez found out that 40% of his Grade 5 students got a final grade below B. How many of his students got a final grade of B and above if he has 60 students in Grade 5?
-## ANSWER
-Since 40% of his students got below B, 100% - 40% = 60% of Mr. Sanchez's students got B and above.
-Thus, 60 x 60/100 = <<60*60/100=36>>36 students got B and above in their final grade.
-Answer: 36
+planer_prompt_system = """
+### INSTRUCTIONS ###
+You are a math problem solving planner. For the following task, make plans that can solve \
+the problem step by step. For each plan, indicate which external tool together with tool input to retrieve \
+evidence. You can store the evidence into a variable #E that can be called by later tools \
+(Plan, #E1, Plan, #E2, Plan, ...)
 
-### EXAMPLE 2
-## PROBLEM
-Weng earns $12 an hour for babysitting. Yesterday, she just did 50 minutes of babysitting. How much did she earn?
-## ANSWER
-Weng earns 12/60 = $0.2 per minute.
-Working 50 minutes, she earned 0.2 x 50 = $10.
-Answer: 10
+Tools can be one of the following:
+(1) Calculate[input]: A tool that is used for solving math expressions. It cannot be used with the \
+variables. The only variables that can be used are #E1, #E2, ... and they should be \
+assigned to the result of the Calculate tool. \
+(2) LLM[input]: A pretrained LLM like yourself. Useful when you need to act with general world knowledge and \
+common sense. Prioritize it when you are confident in solving the problem yourself. Input can be any instruction.
 
-### EXAMPLE 3
-## PROBLEM
-John writes 20 pages a day. How long will it take him to write 3 books that are 400 pages each?
-## ANSWER
-He wants to write 3*400=1200 pages.
-So it will take him 1200/20=60 days.
-Answer: 60
+### EXAMPLE ###
+# Task: A person has $500. They spend 40% on groceries, 20% on utilities, and 10% on transportation. \
+How much money do they have left?
 
-### EXAMPLE 4
-## PROBLEM
-Mark has a garden with flowers. He planted plants of three different colors in it. Ten of them are yellow, and there are 80% more of those in purple. There are only 25% as many green flowers as there are yellow and purple flowers. How many flowers does Mark have in his garden?
-## ANSWER
-There are 80/100 * 10 = <<80/100*10=8>>8 more purple flowers than yellow flowers.
-So in Mark's garden, there are 10 + 8 = <<10+8=18>>18 purple flowers.
-Purple and yellow flowers sum up to 10 + 18 = <<10+18=28>>28 flowers.
-That means in Mark's garden there are 25/100 * 28 = <<25/100*28=7>>7 green flowers.
-So in total Mark has 28 + 7 = <<28+7=35>>35 plants in his garden.
-Answer: 35
+# Solving plan:
+Plan: Calculate the total amount spent on groceries, utilities, and transportation.
+#E1 = Calculate[0.40 * 500 + 0.20 * 500 + 0.10 * 500]
+
+Plan: Subtract the total amount spent from the initial amount to find the remaining money.
+#E2 = Calculate[500 - #E1]
 """
 
-problem_prompt = \
+planer_prompt_human = """
+### YOUR TASK ###
+Describe your plans with rich details. Each Plan should be followed by only one #E.
+
+# Task: {task}
+# Solving Plan:
 """
-### INPUT
-## PROBLEM
-{problem}
-## ANSWER
+
+planer_prompt_template = ChatPromptTemplate.from_messages(
+    [("system", planer_prompt_system), ("user", planer_prompt_human)]
+)
+
+planer_prompt_system_reflection = """
+### INSTRUCTIONS ###
+You are a math problem solving planner. You can see below the task, the plan and the reflection on this plan. \
+You are asked to update the plan based on the reflection. Start the plan over from scratch, \
+but you can use the previous plan as a reference. \
+
+Tools can be one of the following:
+(1) Calculate[input]: A tool that is used for solving math expressions. It cannot be used with the \
+variables. The only variables that can be used are #E1, #E2, ... and they should be \
+assigned to the result of the Calculate tool. \
+(2) LLM[input]: A pretrained LLM like yourself. Useful when you need to act with general world knowledge and \
+common sense. Prioritize it when you are confident in solving the problem yourself. Input can be any instruction.
+
+Tools can be one of the following:
+(1) Calculate[input]: A tool that is used for solving math expressions using sympy.
+(2) LLM[input]: A pretrained LLM like yourself. Useful when you need to act with general world knowledge and \
+common sense. Prioritize it when you are confident in solving the problem yourself. Input can be any instruction. \
+However, you should not use LLM to solve math problems.
+
+### EXAMPLE ###
+# Task: Peter is 7 years old. His sister is 3 years younger than him. What is the sum of their ages?
+
+# Previous Plan:
+Plan: Calulate Peter's sister age
+#E1 = Calculate[7 - 3]
+
+# Reflection: The plan is correct, but I need to add a step to calculate the sum of their ages.
+
+# Updated Plan:
+Plan: Calculate Peter's sister age
+#E1 = Calculate[7 - 3]
+Plan: Calculate the sum of Peter's age and his sister's age.
+#E2 = Calculate[7 + #E1]
 """
+
+planer_prompt_human_reflection = """
+### YOUR TASK ###
+Describe your plans with rich details. Each Plan should be followed by only one #E.
+# Task: {task}
+# Previous Plan: {plan}
+# Reflection: {reflection}
+# Updated Plan:
+"""
+
+planer_prompt_template_reflection = ChatPromptTemplate.from_messages(
+    [
+        ("system", planer_prompt_system_reflection),
+        ("user", planer_prompt_human_reflection),
+    ]
+)
+
+solver_prompt = """
+### INSTRUCTIONS ###
+Solve the following task or problem. To solve the problem, we have made step-by-step Plan and \
+retrieved corresponding Evidence to each Plan. Use them with caution since long evidence might \
+contain irrelevant information.
+
+Respond with the answer in a format: "Answer: <value>". Value should be a number without \
+any units. If you are not sure about the answer, respond with "I don't know".
+
+### TASK ###
+{task}
+
+### PLAN ###
+{plan}
+
+### ANSWER ###
+"""
+
+reflection_prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """You are a math teacher evaluating a student's problem-solving process.
+Provide a detailed critique of the solution path, focusing only on the mathematical correctness of each step.
+Do not comment on the formatting, phrasing, style or clarity of the explanation. Only assess the validity of the \
+approach.
+If the solution is fully correct with no improvements needed, simply respond with 'END' in all capital letters.""",
+        ),
+        MessagesPlaceholder(variable_name="messages"),
+    ]
+)
