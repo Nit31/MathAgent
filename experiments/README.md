@@ -12,6 +12,8 @@ The models were tested on a dataset of 100 random samples from the **GSM8K** tes
 | Gemma   | 0.76     |
 | Mistral | 0.46     |
 | OpenAI  | 0.89     |
+=======
+
 
 ### Final decision on the model
 
